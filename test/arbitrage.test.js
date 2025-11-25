@@ -50,6 +50,16 @@ describe("Price Calculations", () => {
     const price = sqrtPriceX96ToPrice(0n, 18, 6);
     assert.strictEqual(price, 0);
   });
+  
+  it("should handle null sqrtPriceX96", () => {
+    const price = sqrtPriceX96ToPrice(null, 18, 6);
+    assert.strictEqual(price, 0);
+  });
+  
+  it("should handle undefined sqrtPriceX96", () => {
+    const price = sqrtPriceX96ToPrice(undefined, 18, 6);
+    assert.strictEqual(price, 0);
+  });
 });
 
 describe("Arbitrage Calculations", () => {

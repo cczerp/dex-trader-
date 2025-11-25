@@ -102,8 +102,17 @@ async function main() {
     
     // Estimate gas costs
     console.log("Estimating gas costs...");
-    // Use current ETH price from our price data
-    const ethPriceUsd = priceData.prices.find(p => !p.error)?.priceToken0InToken1 || 3000;
+    // Use current ETH price from our price data, with a dynamic fallback
+    // The fallback is used only if all price fetches failed
+    const validPrice = priceData.prices.find(p => !p.error);
+    let ethPriceUsd;
+    if (validPrice) {
+      ethPriceUsd = validPrice.priceToken0InToken1;
+    } else {
+      // No valid prices - use a conservative estimate and warn user
+      console.warn("  Warning: Could not fetch live ETH price, using estimated fallback");
+      ethPriceUsd = 2500; // Conservative estimate
+    }
     const gasCost = await estimateSwapGasCost(provider, ethPriceUsd);
     
     console.log("GAS ESTIMATION:");

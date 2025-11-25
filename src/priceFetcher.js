@@ -22,15 +22,25 @@ export function createProvider(rpcUrl = BASE_RPC_URL) {
  * sqrtPriceX96 = sqrt(price) * 2^96
  * price = (sqrtPriceX96 / 2^96)^2
  * 
+ * Note: For arbitrage detection purposes, standard JavaScript Number precision
+ * is sufficient since we're comparing relative prices. For actual trading,
+ * consider using a high-precision library like decimal.js.
+ * 
  * @param {bigint} sqrtPriceX96 - The sqrt price from slot0
  * @param {number} token0Decimals - Decimals of token0
  * @param {number} token1Decimals - Decimals of token1
  * @returns {number} The price of token0 in terms of token1
  */
 export function sqrtPriceX96ToPrice(sqrtPriceX96, token0Decimals, token1Decimals) {
+  // Validate input - return 0 for invalid/missing values
+  if (sqrtPriceX96 === null || sqrtPriceX96 === undefined || sqrtPriceX96 === 0n) {
+    return 0;
+  }
+  
   const Q96 = 2n ** 96n;
   
   // Convert to number for floating point math
+  // Note: Precision loss is acceptable for arbitrage detection purposes
   const sqrtPrice = Number(sqrtPriceX96) / Number(Q96);
   const price = sqrtPrice * sqrtPrice;
   
