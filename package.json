@@ -1,0 +1,26 @@
+{
+  "name": "dex-trader",
+  "version": "1.0.0",
+  "description": "Base network DEX arbitrage bot that queries smart contracts directly for fast price data",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "arbitrage": "node src/arbitrage.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "dex",
+    "arbitrage",
+    "base",
+    "ethereum",
+    "uniswap",
+    "aerodrome",
+    "trading"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "ethers": "^6.13.0"
+  }
+}
