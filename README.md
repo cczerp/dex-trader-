@@ -10,6 +10,9 @@ A high-performance DEX arbitrage bot for the Base network that queries smart con
 - **Arbitrage Detection**: Automatically identifies arbitrage opportunities between DEXes
 - **Gas Fee Calculation**: Accounts for gas fees when calculating profitability
 - **Configurable Parameters**: Customizable trade sizes, slippage tolerance, and profit thresholds
+- **AI-Powered Self-Diagnosis**: Built-in AI Agent that diagnoses errors and recommends code improvements
+- **Self-Improvement System**: AI analyzes trading patterns and suggests parameter optimizations
+- **Authorization Required**: All code changes require explicit user authorization for safety
 
 ## Supported Tokens (Base Network)
 
@@ -72,6 +75,20 @@ node src/index.js --monitor
 node src/index.js --monitor --interval=10000
 ```
 
+### AI Agent Features
+
+```bash
+# Generate AI optimization report
+node src/index.js --ai-report
+```
+
+The AI Agent provides:
+- **Error Diagnosis**: Automatically categorizes and diagnoses errors (network, contract, price, liquidity, gas, slippage, config, logic)
+- **Root Cause Analysis**: Identifies the underlying cause of issues with possible reasons
+- **Code Change Recommendations**: Suggests specific code changes with implementation details
+- **Parameter Optimization**: Recommends trading parameter adjustments based on error patterns
+- **Authorization System**: All changes require explicit user approval before implementation
+
 ## How It Works
 
 ### 1. Direct Smart Contract Queries
@@ -125,6 +142,35 @@ export const GAS_CONFIG = {
 };
 ```
 
+### AI Agent Configuration
+
+The AI Agent can be configured in `src/aiAgent.js`:
+
+```javascript
+export const AI_AGENT_CONFIG = {
+  name: "DEX Trading AI Agent",
+  version: "1.0.0",
+  
+  // Focus areas - the AI only analyzes these topics
+  focusAreas: [
+    "dex_swap_logic",
+    "arbitrage_calculations",
+    "price_fetching",
+    "gas_optimization",
+    "error_handling",
+    "slippage_management",
+    "liquidity_analysis"
+  ],
+  
+  // Authorization requirements
+  requireAuthForChanges: true,
+  
+  // Learning parameters
+  learningEnabled: true,
+  errorHistoryLimit: 100
+};
+```
+
 ## Example Output
 
 ```
@@ -153,6 +199,44 @@ RECOMMENDATION: PROFITABLE - Net profit after gas: $15.6632
 ═══════════════════════════════════════════════════════════════
 ```
 
+### AI Agent Diagnostic Report (on error)
+
+```
+═══════════════════════════════════════════════════════════════
+              AI AGENT DIAGNOSTIC REPORT                        
+═══════════════════════════════════════════════════════════════
+
+Timestamp: 2024-01-15T10:30:00.000Z
+Error Category: NETWORK_ERROR
+Severity: ★★★☆☆ (3/5)
+
+ROOT CAUSE ANALYSIS:
+  Cause: Network connectivity or RPC endpoint issue
+  Details: The connection to the blockchain RPC endpoint failed or timed out
+
+  Possible Reasons:
+    • RPC endpoint is down or overloaded
+    • Network latency is too high
+    • Rate limiting from the RPC provider
+    • Internet connectivity issues
+
+RECOMMENDATIONS:
+  [HIGH] Switch to backup RPC endpoint
+    Reasoning: Primary RPC may be experiencing issues
+    Expected Improvement: Network reliability +50%
+
+  [MEDIUM] Implement exponential backoff retry
+    Reasoning: Temporary network issues may resolve with retries
+    Expected Improvement: Success rate +30%
+
+SUGGESTED CODE CHANGES:
+  File: src/priceFetcher.js
+  Description: Add retry logic with fallback RPC endpoints
+  Requires Auth: YES
+
+═══════════════════════════════════════════════════════════════
+```
+
 ## Running Tests
 
 ```bash
@@ -164,13 +248,16 @@ npm test
 ```
 dex-trader-/
 ├── src/
-│   ├── index.js         # Main entry point
+│   ├── index.js         # Main entry point (AI-enhanced)
 │   ├── config.js        # Configuration (tokens, DEXes, pools)
 │   ├── abis.js          # Smart contract ABIs
 │   ├── priceFetcher.js  # Direct contract price queries
-│   └── arbitrage.js     # Arbitrage calculation logic
+│   ├── arbitrage.js     # Arbitrage calculation logic
+│   ├── aiAgent.js       # AI Agent for self-diagnosis and optimization
+│   └── errorHandler.js  # Smart error handling with AI integration
 ├── test/
-│   └── arbitrage.test.js
+│   ├── arbitrage.test.js
+│   └── aiAgent.test.js
 ├── package.json
 ├── .gitignore
 ├── LICENSE
@@ -191,6 +278,56 @@ dex-trader-/
 | `slot0()` | Returns current price (sqrtPriceX96), tick, and observation data |
 | `liquidity()` | Returns current in-range liquidity |
 | `token0()` / `token1()` | Returns pool token addresses |
+
+### AI Agent Architecture
+
+The AI Agent is designed specifically for DEX trading analysis and only focuses on:
+
+| Focus Area | Description |
+|------------|-------------|
+| `dex_swap_logic` | Swap execution and routing logic |
+| `arbitrage_calculations` | Profit/loss calculations between DEXes |
+| `price_fetching` | Price data retrieval and validation |
+| `gas_optimization` | Gas cost estimation and optimization |
+| `error_handling` | Runtime error detection and recovery |
+| `slippage_management` | Slippage calculation and tolerance |
+| `liquidity_analysis` | Pool depth and liquidity assessment |
+
+#### Error Categories
+
+The AI Agent can diagnose these error types:
+
+| Category | Examples |
+|----------|----------|
+| `NETWORK` | RPC timeouts, connection failures |
+| `CONTRACT` | Reverted transactions, ABI mismatches |
+| `PRICE` | Invalid price data, zero values |
+| `LIQUIDITY` | Insufficient pool depth |
+| `GAS` | Failed estimations, high fees |
+| `SLIPPAGE` | Exceeded tolerance |
+| `CONFIG` | Invalid addresses, missing pools |
+| `LOGIC` | Null values, type errors |
+
+#### Authorization Flow
+
+All code changes recommended by the AI Agent require explicit authorization:
+
+1. AI detects an issue and generates diagnosis
+2. AI generates code change recommendations
+3. Change is queued in `pendingChanges` 
+4. User reviews and approves/rejects via authorization callback
+5. Approved changes are tracked in `authorizedChanges`
+
+```javascript
+// Example: Setting up authorization callback
+import { aiAgent } from './src/index.js';
+
+aiAgent.config.authCallback = async (request) => {
+  console.log('Change requested:', request.description);
+  // Implement your approval logic
+  return { authorized: true, reason: 'Approved by user' };
+};
+```
 
 ### RPC Endpoints
 
