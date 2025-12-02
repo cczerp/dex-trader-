@@ -67,6 +67,38 @@ export const ERROR_CATEGORIES = {
 
 /**
  * AI Agent class - The brain of the self-diagnosing system
+ * 
+ * This class provides intelligent error diagnosis, code improvement recommendations,
+ * and trading parameter optimization for the DEX trading bot.
+ * 
+ * Key Features:
+ * - Error categorization into 8 distinct categories (network, contract, price, etc.)
+ * - Root cause analysis with detailed reasoning
+ * - Code change recommendations with implementation suggestions
+ * - Trading parameter optimization based on error patterns
+ * - Authorization workflow for all code changes
+ * 
+ * Usage:
+ * ```javascript
+ * const agent = new AIAgent();
+ * 
+ * // Analyze an error
+ * const diagnosis = agent.analyzeError(error, { operation: 'price_fetch' });
+ * console.log(agent.formatDiagnosis(diagnosis));
+ * 
+ * // Get optimization recommendations
+ * const optimization = agent.optimizeTradingParameters();
+ * 
+ * // Generate comprehensive report
+ * const report = agent.generateOptimizationReport();
+ * ```
+ * 
+ * Authorization Workflow:
+ * 1. Agent generates code change recommendations
+ * 2. Changes are queued in pendingChanges
+ * 3. User calls requestAuthorization() with callback
+ * 4. Callback approves/rejects the change
+ * 5. Approved changes tracked in authorizedChanges
  */
 export class AIAgent {
   constructor(config = AI_AGENT_CONFIG) {
@@ -470,7 +502,10 @@ export class AIAgent {
           changeType: "enhancement",
           code: `
 // Suggested addition: Retry wrapper with fallback
-async function fetchWithRetry(fetchFn, maxRetries = 3, providers) {
+async function fetchWithRetry(fetchFn, maxRetries = 3, providers = []) {
+  if (!providers || providers.length === 0) {
+    throw new Error('No providers available for retry');
+  }
   for (let i = 0; i < maxRetries; i++) {
     try {
       return await fetchFn(providers[i % providers.length]);
@@ -510,12 +545,16 @@ function validatePrice(price, expectedRange = { min: 100, max: 100000 }) {
           description: "Add liquidity check before analysis",
           changeType: "enhancement",
           code: `
-// Suggested addition: Minimum liquidity check
-const MIN_LIQUIDITY_THRESHOLD = 1000000n; // Adjust based on trade size
-
-function hasAdequateLiquidity(priceData, tradeAmount) {
+// Suggested addition: Liquidity adequacy check
+// Trade amount is in ETH, liquidity is pool's total liquidity
+// A good rule of thumb: trade should be < 1% of pool liquidity
+function hasAdequateLiquidity(priceData, tradeAmountEth, ethPriceUsd = 3000) {
   const liquidity = BigInt(priceData.liquidity || '0');
-  return liquidity >= MIN_LIQUIDITY_THRESHOLD;
+  const tradeValueUsd = tradeAmountEth * ethPriceUsd;
+  // Estimate: if trade value > 1% of liquidity value, may cause high slippage
+  const liquidityValue = Number(liquidity) / 1e12; // Rough USD estimate
+  const tradeToLiquidityRatio = tradeValueUsd / (liquidityValue || 1);
+  return tradeToLiquidityRatio < 0.01; // Trade < 1% of pool liquidity
 }`,
           requiresAuth: true
         });

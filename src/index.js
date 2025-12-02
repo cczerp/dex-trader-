@@ -96,8 +96,10 @@ async function main() {
     const startTime = Date.now();
     
     // Use error handler for price fetching
+    // Create a bound function that captures the pair variable
+    const fetchPricesForPair = (provider) => fetchPricesMultipleDEXes(provider, pair);
     const wrappedFetchPrices = errorHandler.wrapAsync(
-      async (p) => await fetchPricesMultipleDEXes(p, pair),
+      fetchPricesForPair,
       { operation: "price_fetch", pair }
     );
     

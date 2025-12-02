@@ -37,10 +37,43 @@ export class SmartErrorHandler {
   }
 
   /**
-   * Wrap an async function with intelligent error handling
-   * @param {Function} fn - The async function to wrap
-   * @param {Object} context - Context about the operation
-   * @returns {Function} Wrapped function with error handling
+   * Wrap an async function with intelligent error handling and retry logic.
+   * 
+   * This method wraps any async function to add:
+   * - Automatic retry with configurable attempts
+   * - Exponential backoff between retries
+   * - AI-powered error diagnosis
+   * - Verbose logging (configurable)
+   * - Enhanced error objects with diagnosis info
+   * 
+   * @param {Function} fn - The async function to wrap. Will be called with any
+   *                        arguments passed to the returned wrapped function.
+   * @param {Object} context - Context about the operation for better diagnosis.
+   * @param {string} [context.operation] - Name of the operation (e.g., 'price_fetch')
+   * @param {string} [context.pair] - Trading pair if applicable
+   * @param {*} [context.*] - Any additional context properties
+   * @returns {Function} A wrapped async function that handles errors intelligently.
+   * 
+   * @example
+   * const handler = new SmartErrorHandler();
+   * 
+   * // Wrap a price fetching function
+   * const wrappedFetch = handler.wrapAsync(
+   *   (provider, pair) => fetchPrices(provider, pair),
+   *   { operation: 'price_fetch', pair: 'WETH/USDC' }
+   * );
+   * 
+   * // Call the wrapped function - retries automatically on retryable errors
+   * const prices = await wrappedFetch(provider, 'WETH/USDC');
+   * 
+   * @example
+   * // Errors are enhanced with AI diagnosis
+   * try {
+   *   await wrappedFetch(provider, pair);
+   * } catch (error) {
+   *   console.log(error.aiDiagnosis); // Contains AI analysis
+   *   console.log(error.recommendations); // Suggested fixes
+   * }
    */
   wrapAsync(fn, context = {}) {
     return async (...args) => {
